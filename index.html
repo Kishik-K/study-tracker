@@ -1,1 +1,896 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Study Tracker · 12-Week Roadmap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #020104;
+    --bg-2: #07060c;
+    --fg: #e9e6f0;
+    --muted: #8a869a;
+    --dim: #5a5668;
+    --line: rgba(255,255,255,0.08);
+    --line-strong: rgba(255,255,255,0.16);
+    --amber: #F59E0B;
+    --blue: #3B82F6;
+    --red: #EF4444;
+    --purple: #8B5CF6;
+    --pink: #EC4899;
+    --emerald: #10B981;
+    --indigo: #6366F1;
+    --gray: #6B7280;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{background:var(--bg); color:var(--fg); font-family:'JetBrains Mono','IBM Plex Mono','Space Mono',ui-monospace,Menlo,monospace; font-size:14px; line-height:1.55; -webkit-font-smoothing:antialiased;}
+  button,input,select,textarea{font-family:inherit; color:inherit; background:transparent; border:none; outline:none;}
+  a{color:inherit;}
+  ::selection{background:rgba(245,158,11,0.3);}
 
+  .app{max-width:1280px; margin:0 auto; padding:0 28px 96px;}
+  /* Top nav */
+  .nav{position:sticky; top:0; z-index:50; background:rgba(2,1,4,0.92); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); margin:0 -28px 48px; padding:0 28px;}
+  .nav-inner{display:flex; align-items:center; justify-content:space-between; gap:24px; height:64px;}
+  .brand{font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted);}
+  .brand b{color:var(--fg); font-weight:700;}
+  .tabs{display:flex; gap:28px; flex-wrap:wrap;}
+  .tab{font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); padding:22px 0; cursor:pointer; border-bottom:1px solid transparent; transition:color .15s;}
+  .tab:hover{color:var(--fg);}
+  .tab.active{color:var(--fg); border-bottom-color:var(--fg);}
+
+  /* Section labels */
+  .label{font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); font-weight:500;}
+  .h-display{font-size:42px; line-height:1.02; font-weight:800; letter-spacing:-0.02em;}
+  .h-section{font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:18px; font-weight:600;}
+  .h-week{font-size:24px; line-height:1.1; font-weight:700; letter-spacing:-0.01em;}
+
+  /* Layout */
+  .stack > * + *{margin-top:56px;}
+  .row{display:flex; gap:24px;}
+  .grid-4{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:0; border:1px solid var(--line);}
+  .grid-4 > .stat{padding:22px 22px; border-right:1px solid var(--line);}
+  .grid-4 > .stat:last-child{border-right:none;}
+  .stat .label{margin-bottom:14px;}
+  .stat .num{font-size:34px; font-weight:700; letter-spacing:-0.02em; line-height:1;}
+  .stat .sub{font-size:11px; color:var(--dim); margin-top:8px; letter-spacing:.06em;}
+
+  /* Bracket tag */
+  .tag{display:inline-flex; align-items:center; gap:6px; font-size:10px; letter-spacing:.14em; text-transform:uppercase; padding:4px 8px; border:1px solid var(--line-strong); color:var(--muted);}
+  .tag.colored{border-color:currentColor;}
+
+  /* Progress bar */
+  .bar{height:6px; background:rgba(255,255,255,0.05); border:1px solid var(--line); position:relative; overflow:hidden;}
+  .bar > div{height:100%; background:var(--fg); transition:width .3s;}
+
+  /* Phase bar */
+  .phasebar{display:flex; height:34px; border:1px solid var(--line);}
+  .phasebar > div{flex:var(--w,1); display:flex; align-items:center; justify-content:center; font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:#0a0a0a; font-weight:700; border-right:1px solid rgba(0,0,0,0.4);}
+  .phasebar > div:last-child{border-right:none;}
+
+  /* Week dots */
+  .dots{display:flex; gap:6px; flex-wrap:wrap;}
+  .dot{width:22px; height:22px; border:1px solid var(--line-strong); display:flex; align-items:center; justify-content:center; font-size:9px; color:var(--dim); cursor:pointer; user-select:none;}
+  .dot:hover{border-color:var(--fg);}
+  .dot.full{background:var(--emerald); color:#021; border-color:var(--emerald);}
+  .dot.partial{background:var(--amber); color:#210; border-color:var(--amber);}
+  .dot.current{outline:1px solid var(--fg); outline-offset:2px;}
+  .dot.selected{box-shadow:inset 0 0 0 2px var(--bg);}
+  .week-nav{display:flex; gap:0; border:1px solid var(--line-strong);}
+  .wn-btn{background:transparent; color:var(--fg); border:none; border-right:1px solid var(--line-strong); padding:6px 12px; font:inherit; font-size:10px; letter-spacing:0.1em; cursor:pointer;}
+  .wn-btn:last-child{border-right:none;}
+  .wn-btn:hover:not(:disabled){background:rgba(255,255,255,0.06);}
+  .wn-btn:disabled{color:var(--dim); cursor:not-allowed;}
+
+  /* Card */
+  .card{border:1px solid var(--line); padding:28px;}
+  .card.hero{padding:32px;}
+
+  /* Track item (left border) */
+  .track{padding:14px 0 14px 18px; border-left:2px solid var(--gray); display:flex; gap:16px; align-items:flex-start;}
+  .track + .track{margin-top:18px;}
+  .track .body{flex:1; min-width:0;}
+  .track .tlabel{font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:700; margin-bottom:6px;}
+  .track .tdesc{font-size:13px; color:#c9c5d6; line-height:1.65;}
+
+  /* Checkbox */
+  .check{width:18px; height:18px; border:1px solid var(--line-strong); display:inline-flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; margin-top:2px; background:transparent;}
+  .check.checked{background:var(--fg); border-color:var(--fg);}
+  .check.checked::after{content:"×"; color:#020104; font-size:14px; line-height:1; font-weight:700;}
+
+  /* Milestone & tip */
+  .box{border:1px solid var(--line); padding:14px 16px; display:flex; gap:12px; align-items:flex-start; font-size:12.5px; line-height:1.55;}
+  .box.milestone{border-color:var(--emerald); color:#bff5dc;}
+  .box.tip{border-color:var(--line-strong); color:var(--muted);}
+  .box .ic{font-size:11px; letter-spacing:.18em; text-transform:uppercase; font-weight:700; flex-shrink:0;}
+  .box.milestone .ic{color:var(--emerald);}
+  .box.tip .ic{color:var(--amber);}
+
+  /* Accordion */
+  .week{border:1px solid var(--line);}
+  .week + .week{border-top:none;}
+  .week-head{display:flex; align-items:center; gap:20px; padding:20px 24px; cursor:pointer; background:transparent;}
+  .week-head:hover{background:rgba(255,255,255,0.02);}
+  .week-num{font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); width:120px; flex-shrink:0;}
+  .week-title{flex:1; font-size:15px; font-weight:600; letter-spacing:-0.01em;}
+  .week-meta{display:flex; gap:10px; align-items:center;}
+  .week-body{padding:24px 24px 28px; border-top:1px solid var(--line); display:none;}
+  .week.open .week-body{display:block;}
+  .chev{font-size:10px; color:var(--muted); width:14px; text-align:center;}
+  .week.open .chev{transform:rotate(90deg);}
+
+  textarea.notes{width:100%; min-height:90px; border:1px solid var(--line); padding:12px 14px; color:var(--fg); font-size:13px; line-height:1.55; resize:vertical; margin-top:18px;}
+  textarea.notes:focus{border-color:var(--line-strong);}
+
+  /* Table */
+  table{width:100%; border-collapse:collapse; font-size:12.5px;}
+  th{font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); font-weight:600; text-align:left; padding:12px 14px; border-bottom:1px solid var(--line);}
+  td{padding:12px 14px; border-bottom:1px solid var(--line); vertical-align:top;}
+  tbody tr:hover{background:rgba(255,255,255,0.02);}
+  th.sortable{cursor:pointer;}
+  th.sortable:hover{color:var(--fg);}
+
+  /* Form */
+  .form{display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:10px; border:1px solid var(--line); padding:18px;}
+  .form input, .form select, .form textarea{border:1px solid var(--line); padding:10px 12px; font-size:12px; width:100%;}
+  .form input:focus, .form select:focus, .form textarea:focus{border-color:var(--line-strong);}
+  .form .full{grid-column:1/-1;}
+  .btn{border:1px solid var(--fg); padding:10px 18px; font-size:10px; letter-spacing:.18em; text-transform:uppercase; font-weight:700; cursor:pointer; color:var(--fg); background:transparent;}
+  .btn:hover{background:var(--fg); color:var(--bg);}
+  .btn.ghost{border-color:var(--line-strong); color:var(--muted); font-weight:500;}
+  .btn.ghost:hover{background:transparent; color:var(--fg); border-color:var(--fg);}
+
+  /* Diff colors */
+  .d-Easy{color:var(--emerald);}
+  .d-Medium{color:var(--amber);}
+  .d-Hard{color:var(--red);}
+
+  /* Topic progress */
+  .topics{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:0; border:1px solid var(--line);}
+  .topic{padding:14px 16px; border-right:1px solid var(--line); border-bottom:1px solid var(--line);}
+  .topic .tname{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin-bottom:8px;}
+  .topic .tnum{font-size:18px; font-weight:700; margin-bottom:8px;}
+
+  /* Kanban */
+  .kanban{display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:0; border:1px solid var(--line);}
+  .col{border-right:1px solid var(--line); min-height:300px; display:flex; flex-direction:column;}
+  .col:last-child{border-right:none;}
+  .col-head{padding:14px 16px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center;}
+  .col-head .label{font-weight:600;}
+  .col-body{padding:12px; flex:1; display:flex; flex-direction:column; gap:10px;}
+  .col-body.over{background:rgba(255,255,255,0.03);}
+  .jcard{border:1px solid var(--line-strong); padding:12px; cursor:grab; position:relative;}
+  .jcard:active{cursor:grabbing;}
+  .jcard .jcompany{font-size:13px; font-weight:700; letter-spacing:-0.01em;}
+  .jcard .jrole{font-size:11px; color:var(--muted); margin-top:2px;}
+  .jcard .jmeta{font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--dim); margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;}
+  .jcard .jdot{position:absolute; top:12px; right:12px; width:8px; height:8px; border-radius:50%;}
+  .jcard .jdel{position:absolute; bottom:10px; right:12px; font-size:9px; letter-spacing:.14em; color:var(--dim); cursor:pointer; text-transform:uppercase;}
+  .jcard .jdel:hover{color:var(--red);}
+  .jcard select{font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-top:8px; border:1px solid var(--line); padding:4px 6px; width:100%;}
+
+  /* Modal */
+  .modal-back{position:fixed; inset:0; background:rgba(0,0,0,0.75); display:none; align-items:center; justify-content:center; z-index:100; padding:20px;}
+  .modal-back.open{display:flex;}
+  .modal{background:var(--bg); border:1px solid var(--line-strong); padding:28px; max-width:540px; width:100%;}
+
+  /* Misc */
+  .muted{color:var(--muted);}
+  .dim{color:var(--dim);}
+  .small{font-size:11px;}
+  .between{display:flex; justify-content:space-between; align-items:center; gap:16px;}
+  .gap-2{gap:8px;} .gap-3{gap:12px;} .gap-4{gap:16px;}
+  .mt-2{margin-top:8px;} .mt-3{margin-top:12px;} .mt-4{margin-top:16px;} .mt-6{margin-top:24px;}
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .h-display{font-size:32px;}
+    .grid-4{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .grid-4 > .stat:nth-child(2){border-right:none;}
+    .grid-4 > .stat:nth-child(-n+2){border-bottom:1px solid var(--line);}
+    .form{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .kanban{grid-template-columns:1fr; }
+    .col{border-right:none; border-bottom:1px solid var(--line);}
+    .week-head{flex-wrap:wrap;}
+    .week-num{width:100%;}
+    .tabs{gap:16px;}
+    .nav-inner{height:auto; padding:14px 0; flex-direction:column; align-items:flex-start;}
+    .tab{padding:8px 0;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="nav">
+    <div class="nav-inner">
+      <div class="brand"><b>STUDY.TRACKER</b> &nbsp;/&nbsp; 12-WEEK ROADMAP &nbsp;·&nbsp; JUN 09 — AUG 31</div>
+      <div class="tabs" id="tabs">
+        <div class="tab active" data-tab="dashboard">Dashboard</div>
+        <div class="tab" data-tab="roadmap">Roadmap</div>
+        <div class="tab" data-tab="leetcode">LeetCode Log</div>
+        <div class="tab" data-tab="jobs">Job Tracker</div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="view" class="stack"></main>
+</div>
+
+<div class="modal-back" id="modalBack">
+  <div class="modal" id="modal"></div>
+</div>
+
+<script>
+/* =========================================================
+   DATA
+   ========================================================= */
+const COLORS = {
+  fcc: '#F59E0B', react: '#3B82F6', helsinki: '#EF4444',
+  java: '#8B5CF6', leetcode: '#EC4899', spring: '#10B981',
+  jobs: '#6366F1', buffer: '#6B7280'
+};
+const TRACK_NAMES = {
+  fcc:'FCC JavaScript', react:'React', helsinki:'Helsinki Java',
+  java:'Java Roadmap', leetcode:'LeetCode / DSA', spring:'Spring Boot',
+  jobs:'Job Applications', buffer:'Buffer / Portfolio'
+};
+
+const PHASES = [
+  {weeks:3, color:COLORS.fcc,      label:'FCC + HELSINKI'},
+  {weeks:1, color:COLORS.react,    label:'REACT + DSA'},
+  {weeks:3, color:COLORS.java,     label:'JAVA CORE'},
+  {weeks:2, color:COLORS.spring,   label:'SPRING + DB'},
+  {weeks:2, color:COLORS.pink || '#EC4899', label:'MICRO + SECURITY'},
+  {weeks:1, color:COLORS.indigo || '#6366F1', label:'CAPSTONE'}
+];
+
+const WEEKS = [
+  { n:1, dates:'June 9–15', title:'FCC blitz begins + Java hello world',
+    tracks:[
+      {key:'fcc', desc:'Power through Loops (135 stages) → JavaScript Fundamentals Review → Higher Order Functions & Callbacks (37 stages) → start DOM Manipulation. Move fast — you already know HOFs from prior projects. Goal this week is pure momentum.', label:'FCC JavaScript (3 hrs/day)'},
+      {key:'helsinki', desc:'First programs, console output, variables, Scanner for user input, conditional statements (if/else, switch). Write your very first Java program. Embrace every compiler error — Java is strict by design.', label:'Helsinki Java Parts 1–2 (2 hrs/day)'}
+    ],
+    tip:'Morning = FCC (speed through). Afternoon = Helsinki (slow and deliberate). Never mix both in the same block — total context switch only at the lunch break.' },
+  { n:2, dates:'June 16–22', title:'DOM + events + debug + Java loops',
+    tracks:[
+      {key:'fcc', desc:'Finish DOM Manipulation & Events (87) → JavaScript & Accessibility (49) → Debugging (6) → Basic Regex (45) → first cert project: Markdown to HTML Converter.', label:'FCC JavaScript (3 hrs/day)'},
+      {key:'helsinki', desc:'Loops (for, while, do-while), arrays, ArrayList, methods with return types. OOP intro begins. Map each Java structure to its JS equivalent.', label:'Helsinki Java Parts 3–4 (2 hrs/day)'}
+    ],
+    tip:'If you finish early, pull ahead into Form Validation (103 stages) and buy breathing room for Week 3.' },
+  { n:3, dates:'June 23–29', title:'Cert projects sprint + Helsinki OOP',
+    tracks:[
+      {key:'fcc', desc:'Form Validation (103) → Dates (5) → Audio & Video Events (34) → Drum Machine → Maps & Sets (35) → Voting System → localStorage & CRUD (79) → Classes (65) → Bank Account Management Program.', label:'FCC JavaScript cert projects (3 hrs/day)'},
+      {key:'helsinki', desc:'Interfaces, polymorphism, abstract classes, separating UI from business logic. The hardest part of Helsinki I — do the exercises properly.', label:'Helsinki Java Parts 5–6 (2 hrs/day)'}
+    ],
+    milestone:'4 of 5 FCC cert projects done — target June 28',
+    tip:'Write clean code on each cert project, not just passing code.' },
+  { n:4, dates:'June 30–July 6', title:'FCC DSA in JS + React project + FCC cert done',
+    tracks:[
+      {key:'fcc', desc:'Days 1–3 (2 hrs/day): Recursion (119) → Data Structures (33) → Algorithms (49) → Graphs & Trees (30) → Dynamic Programming (4) → Functional Programming (34) → Async JS (40) → Weather App → Certification Exam.', label:'FCC DSA + cert exam'},
+      {key:'react', desc:'Day 4: code along with full tutorial. Day 5: rebuild from memory. Push to GitHub with README. Day 6: add one extra feature.', label:'React tutorial (full days 4–5)'},
+      {key:'helsinki', desc:'Complete Java I, submit all exercises for certification. Begin Java II Part 8.', label:'Helsinki Java Parts 6–7 + Java II Part 8 (1 hr/day)'},
+      {key:'leetcode', desc:'First 3–5 easy problems in Java: Two Sum, Valid Anagram, Contains Duplicate.', label:'LeetCode Java starts (day 5+, 1 hr)'}
+    ],
+    milestone:'FCC JavaScript Certification · React project on GitHub · Helsinki Java I cert',
+    tip:'Three milestones this week. Priority order: FCC cert (days 1–3), React (days 4–5), Helsinki 30 min/day only.' },
+  { n:5, dates:'July 7–13', title:'Java Roadmap Week 1 + Helsinki II + LeetCode arrays',
+    tracks:[
+      {key:'java', desc:'OOP the Java way: all four pillars with proper Java idioms. Generics, exception handling, Collections framework, File I/O. Build: Mini Library Management System with books, members, borrowing and overdue tracking.', label:'Java Roadmap Week 1 — Core Foundations (3.5 hrs/day)'},
+      {key:'helsinki', desc:'Collections and Stream API — overlaps with Java Roadmap Week 3, building retention early.', label:'Helsinki Java II Parts 9–10 (1 hr/day)'},
+      {key:'leetcode', desc:'10–12 problems. Two Sum, Best Time to Buy & Sell Stock, Maximum Subarray, Valid Palindrome, Longest Common Prefix, Contains Duplicate.', label:'LeetCode Arrays & Strings (1 hr/day)'}
+    ],
+    milestone:'Mini Library Management System complete — first real Java project',
+    tip:'Helsinki II and Java Roadmap Week 3 cover overlapping content — you are building retention through repetition at two different depths simultaneously.' },
+  { n:6, dates:'July 14–20', title:'Multithreading + Helsinki II cert + LeetCode two pointers',
+    tracks:[
+      {key:'java', desc:'Threads (Thread vs Runnable, lifecycle, ExecutorService). Synchronisation (synchronized, ReentrantLock, lock ordering). volatile, wait/notify, ConcurrentHashMap. Build: Concurrent Bank Transaction Simulator.', label:'Java Roadmap Week 2 — Advanced Java (3.5 hrs/day)'},
+      {key:'helsinki', desc:'Class diagrams, packages, generics. Complete all exercises and submit for Helsinki Java II cert.', label:'Helsinki Java II Parts 11–12 + certification (1 hr/day)'},
+      {key:'leetcode', desc:'10–12 problems. Valid Palindrome II, 3Sum, Container With Most Water, Longest Substring Without Repeating Characters, Minimum Size Subarray Sum.', label:'LeetCode Two Pointers + Sliding Window (1 hr/day)'}
+    ],
+    milestone:'Helsinki Java II Certification · Concurrent Bank Simulator built and tested',
+    tip:'Deliberately cause a deadlock in the Bank Simulator, then fix it. That debugging story is interview gold.' },
+  { n:7, dates:'July 21–27', title:'Modern Java — lambdas, streams, records · LeetCode LinkedList',
+    tracks:[
+      {key:'java', desc:'Lambda expressions, Functional interfaces (Predicate, Function, Consumer, Supplier), Stream API (filter/map/reduce/collect/groupingBy), Optional<T>, method references, var, Records, Sealed classes. Refactor entire Library Management System with Streams.', label:'Java Roadmap Week 3 — Java 8+ Features (4 hrs/day)'},
+      {key:'leetcode', desc:'12–14 problems. Reverse Linked List, Merge Two Sorted Lists, Valid Parentheses, Min Stack, Daily Temperatures, LRU Cache.', label:'LeetCode LinkedList + Stack + Queue (1 hr/day)'}
+    ],
+    milestone:'Library System v2 complete — same codebase, fully modernised with Streams',
+    tip:'Screenshot Library v1 vs v2 side by side. Post on LinkedIn. That visible growth is real content.' },
+  { n:8, dates:'July 28–Aug 3', title:'Spring Boot fires up + START APPLYING',
+    tracks:[
+      {key:'spring', desc:'IoC, Dependency Injection, Bean lifecycle. Spring Boot auto-configuration, Profiles. REST controllers (@RestController, @GetMapping etc.), @ControllerAdvice, @Valid. Build: Product Catalogue CRUD API. Test every endpoint in Postman.', label:'Java Roadmap Week 4 — Spring Boot & REST APIs (3 hrs/day)'},
+      {key:'leetcode', desc:'12–14 problems. Max Depth, Invert Binary Tree, Level Order Traversal, LCA, Validate BST, Number of Islands.', label:'LeetCode Binary Trees + BFS/DFS (1 hr/day)'},
+      {key:'jobs', desc:'Polish resume (1 page, GitHub front and centre, list all certs, 3 projects with tech stacks). Apply to 3–5 roles Aug 1–3. Ask cousin at Amex for resume review or referral.', label:'Job Applications — START AUG 1 (1 hr/day)'}
+    ],
+    milestone:'Product Catalogue Spring Boot API live · First job applications sent',
+    tip:'You now have a hireable portfolio. Apply without waiting for perfection.' },
+  { n:9, dates:'Aug 4–10', title:'Databases + ORM + LeetCode sorting',
+    tracks:[
+      {key:'spring', desc:'SQL JOINs, indexing, ACID. Hibernate/JPA (@Entity, @OneToMany, lazy vs eager, N+1 trap). Spring Data JPA (JpaRepository, @Query, Pageable). Connect Product Catalogue API to PostgreSQL. Flyway migrations.', label:'Java Roadmap Week 5 — Databases & Spring Data (3 hrs/day)'},
+      {key:'leetcode', desc:'12–14 problems. Sort Colors, Kth Largest, Find Min in Rotated Sorted Array, Search in Rotated Array, Top K Frequent, Merge Intervals.', label:'LeetCode Sorting + Binary Search + Heap (1 hr/day)'},
+      {key:'jobs', desc:'2–3 applications per day. Customise first paragraph of every cover letter. Track in spreadsheet. Follow up on Week 8 applications.', label:'Job Applications (1 hr/day)'}
+    ],
+    milestone:'Product Catalogue API fully database-backed with real PostgreSQL',
+    tip:'N+1 query problem and lazy vs eager loading are among the most common Java interview questions.' },
+  { n:10, dates:'Aug 11–17', title:'Microservices + Spring Security + LeetCode DP',
+    tracks:[
+      {key:'spring', desc:'Microservices concepts, REST vs gRPC, API Gateway. Spring Cloud (Eureka, Feign client). Spring Security (JWT auth, OAuth2, RBAC with @PreAuthorize). Kafka/RabbitMQ conceptual intro. Add JWT auth to API and split into 2 microservices.', label:'Java Roadmap Week 6 — Microservices & Security (3 hrs/day)'},
+      {key:'leetcode', desc:'12–14 problems. Climbing Stairs, House Robber, Coin Change, Longest Increasing Subsequence, Word Break, Unique Paths.', label:'LeetCode Dynamic Programming (1 hr/day)'},
+      {key:'jobs', desc:'Pramp or Interviewing.io mock interviews. Prepare 3 STAR-format project stories. Practise Bank Simulator deadlock story until it takes 90 seconds.', label:'Technical interview prep (1 hr/day)'}
+    ],
+    milestone:'JWT-secured microservices built and tested',
+    tip:'Spring Security + JWT on your resume is a major green flag. Add it explicitly to both resume and LinkedIn.' },
+  { n:11, dates:'Aug 18–24', title:'System design + design patterns + Docker + LeetCode graphs',
+    tracks:[
+      {key:'java', desc:'Design patterns (Singleton thread-safe, Factory, Builder, Observer, Strategy, Decorator, Saga). System design (horizontal/vertical scaling, caching, load balancing, CAP theorem). Docker (Dockerfile, Docker Compose, networking). Design scalable e-commerce system, implement 3 patterns in code.', label:'Java Roadmap Week 7 — System Design & Patterns (3 hrs/day)'},
+      {key:'leetcode', desc:'12–14 problems. Clone Graph, Course Schedule, Pacific Atlantic Water Flow, Number of Islands BFS variation, Word Ladder.', label:'LeetCode Graphs (1 hr/day)'},
+      {key:'jobs', desc:'First-round invites may arrive now. Ask cousin for mock technical interview this specific week. Senior feedback before a real interview is worth more than another week of self-study.', label:'Interviews + follow-ups (1 hr/day)'}
+    ],
+    milestone:'Dockerised Spring Boot microservices + 3 design patterns implemented',
+    tip:'"I containerised my Spring Boot microservices with Docker Compose" gets visible nods from senior engineers.' },
+  { n:12, dates:'Aug 25–31', title:'Capstone deployed + portfolio done',
+    tracks:[
+      {key:'java', desc:'Java DSA review (arrays, strings, HashMaps, QuickSort, MergeSort from memory). LeetCode 2–3 mixed timed problems/day. Mock interview questions (JVM internals, GC, Bean scopes, @Transactional). Build capstone: full-stack microservices app with auth, PostgreSQL, Docker.', label:'Java Roadmap Week 8 — Interview Prep + Capstone (2 hrs/day)'},
+      {key:'leetcode', desc:'10–12 problems fully timed. Easy under 10 min. Medium under 25 min. No Googling approach before attempting. Write O notation complexity after every submission.', label:'LeetCode mock interviews (1 hr/day)'},
+      {key:'buffer', desc:'Day 1–2: write READMEs for every project. Day 3: deploy Spring Boot API on Railway.app or Render.com. Day 4: add Swagger/OpenAPI docs (springdoc-openapi). Day 5: pin 4 best GitHub repos + write GitHub profile README. Day 7: complete rest, no screen, no code.', label:'Portfolio polish (2 hrs/day)'}
+    ],
+    milestone:'Everything complete. Capstone deployed. Portfolio live. Call your cousin.',
+    tip:'Your GitHub contribution graph from June 9 to August 31 — 83 consecutive days — tells the whole story before anyone reads your resume.' }
+];
+
+const DSA_TABLE = [
+  {wk:5, topic:'Arrays & Strings', diff:'Easy', target:'10–12', key:'Two Sum, Best Time Stock, Valid Palindrome'},
+  {wk:6, topic:'Two Pointers · Sliding Window', diff:'Easy–Med', target:'10–12', key:'3Sum, Container Most Water, Min Window Substring'},
+  {wk:7, topic:'LinkedList · Stack · Queue', diff:'Easy–Med', target:'12–14', key:'Reverse LL, Valid Parentheses, LRU Cache'},
+  {wk:8, topic:'Binary Trees · BFS/DFS', diff:'Medium', target:'12–14', key:'Level Order Traversal, LCA, Validate BST'},
+  {wk:9, topic:'Sorting · Binary Search · Heap', diff:'Medium', target:'12–14', key:'Rotated Array Search, Top K Elements, Merge Intervals'},
+  {wk:10, topic:'Dynamic Programming', diff:'Medium', target:'12–14', key:'Coin Change, LIS, House Robber, Word Break'},
+  {wk:11, topic:'Graphs', diff:'Med–Hard', target:'12–14', key:'Course Schedule, Pacific Atlantic, Word Ladder'},
+  {wk:12, topic:'Mock Interviews · Mixed', diff:'Mixed', target:'10–12', key:'Timed, no hints, O(n) analysis on every solution'}
+];
+const TOPICS = DSA_TABLE.map(r=>r.topic);
+const TOPIC_TARGETS = {'Arrays & Strings':12,'Two Pointers · Sliding Window':12,'LinkedList · Stack · Queue':14,'Binary Trees · BFS/DFS':14,'Sorting · Binary Search · Heap':14,'Dynamic Programming':14,'Graphs':14,'Mock Interviews · Mixed':12};
+
+const JOB_STATUSES = ['To Apply','Applied','Followed Up','Interview','Offer / Rejected'];
+const PRIORITY_COLORS = {High:'#EF4444', Medium:'#F59E0B', Low:'#6B7280'};
+
+/* =========================================================
+   STATE
+   ========================================================= */
+const KEY = {progress:'track_progress', notes:'week_notes', leet:'leetcode_log', jobs:'job_applications'};
+function loadJSON(k, fb){ try{ return JSON.parse(localStorage.getItem(k)) ?? fb; }catch{ return fb; } }
+function saveJSON(k, v){ localStorage.setItem(k, JSON.stringify(v)); }
+
+const state = {
+  tab: 'dashboard',
+  progress: loadJSON(KEY.progress, {}),
+  notes: loadJSON(KEY.notes, {}),
+  leet: loadJSON(KEY.leet, []),
+  jobs: loadJSON(KEY.jobs, []),
+  openWeeks: new Set(),
+  dashWeek: null, // null = follow currentWeek()
+  leetSort: {by:'dateSolved', dir:'desc'}
+};
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+const START = new Date(2026,5,9); // June 9 2026
+const END = new Date(2026,7,31);
+function currentWeek(){
+  const today = new Date();
+  const diff = Math.floor((today - START)/(7*864e5));
+  return Math.max(1, Math.min(12, diff+1));
+}
+function daysUntilEnd(){
+  const today = new Date();
+  return Math.max(0, Math.ceil((END - today)/864e5));
+}
+function trackKey(weekNum, key){ return `week${weekNum}_track_${key}`; }
+function isDone(w,k){ return !!state.progress[trackKey(w,k)]; }
+function setDone(w,k,v){
+  state.progress[trackKey(w,k)] = v;
+  saveJSON(KEY.progress, state.progress);
+}
+function weekCompletion(w){
+  const wk = WEEKS.find(x=>x.n===w);
+  const total = wk.tracks.length;
+  const done = wk.tracks.filter(t=>isDone(w,t.key)).length;
+  return {done, total};
+}
+function totalTracks(){ return WEEKS.reduce((a,w)=>a+w.tracks.length,0); }
+function completedTracks(){ return WEEKS.reduce((a,w)=>a+w.tracks.filter(t=>isDone(w.n,t.key)).length, 0); }
+function weeksFullyDone(){ return WEEKS.filter(w=>{const c=weekCompletion(w.n); return c.done===c.total;}).length; }
+function uid(){ return Math.random().toString(36).slice(2,10)+Date.now().toString(36); }
+function esc(s){ return String(s??'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function fmtDate(s){ if(!s) return ''; const d=new Date(s); if(isNaN(d)) return s; return d.toISOString().slice(0,10); }
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+function render(){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===state.tab));
+  const view = document.getElementById('view');
+  view.innerHTML = ({dashboard:renderDashboard, roadmap:renderRoadmap, leetcode:renderLeetcode, jobs:renderJobs}[state.tab])();
+  bindAfterRender();
+}
+
+/* ---------- DASHBOARD ---------- */
+function renderDashboard(){
+  const cw = currentWeek();
+  const sel = state.dashWeek ?? cw;
+  const total = totalTracks();
+  const done = completedTracks();
+  const pct = Math.round(done/total*100);
+  const wk = WEEKS[sel-1];
+  const isCurrent = sel === cw;
+
+  return `
+    <section>
+      <div class="label">PROGRESS</div>
+      <h1 class="h-display mt-2">Week ${cw} of 12 · ${pct}% complete</h1>
+      <div class="mt-6 bar"><div style="width:${pct}%; background:${COLORS.spring};"></div></div>
+      <div class="between mt-3 small muted"><span>${done} / ${total} TRACKS</span><span>${wk.dates.toUpperCase()}</span></div>
+    </section>
+
+    <section>
+      <div class="h-section">Phase Overview</div>
+      <div class="phasebar">
+        ${PHASES.map(p=>`<div style="--w:${p.weeks}; background:${p.color};">${p.label}</div>`).join('')}
+      </div>
+    </section>
+
+    <section>
+      <div class="h-section">Stats</div>
+      <div class="grid-4">
+        <div class="stat"><div class="label">Weeks Completed</div><div class="num">${weeksFullyDone()} <span class="dim" style="font-size:18px;">/ 12</span></div></div>
+        <div class="stat"><div class="label">Tracks Completed</div><div class="num">${done} <span class="dim" style="font-size:18px;">/ ${total}</span></div></div>
+        <div class="stat"><div class="label">LeetCode Solved</div><div class="num">${state.leet.length}</div><div class="sub">${state.leet.filter(p=>p.difficulty==='Easy').length}E · ${state.leet.filter(p=>p.difficulty==='Medium').length}M · ${state.leet.filter(p=>p.difficulty==='Hard').length}H</div></div>
+        <div class="stat"><div class="label">Days Until Aug 31</div><div class="num">${daysUntilEnd()}</div></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="between" style="align-items:center;">
+        <div class="h-section" style="margin:0;">${isCurrent ? 'Current Week' : 'Week ' + wk.n}</div>
+        <div class="week-nav">
+          <button class="wn-btn" data-week-nav="prev" ${sel<=1?'disabled':''} aria-label="Previous week">◀</button>
+          <button class="wn-btn" data-week-nav="today" ${isCurrent?'disabled':''} aria-label="Jump to current week">TODAY</button>
+          <button class="wn-btn" data-week-nav="next" ${sel>=12?'disabled':''} aria-label="Next week">▶</button>
+        </div>
+      </div>
+      <div class="card hero mt-4">
+        <div class="between" style="align-items:flex-start;">
+          <div>
+            <div class="label" style="color:${isCurrent?COLORS.spring:'rgba(255,255,255,0.55)'};">WEEK ${wk.n} · ${wk.dates.toUpperCase()}${isCurrent?' · NOW':''}</div>
+            <h2 class="h-week mt-2">${esc(wk.title)}</h2>
+          </div>
+          <div class="tag">${weekCompletion(wk.n).done}/${weekCompletion(wk.n).total} TRACKS</div>
+        </div>
+        <div class="mt-6">
+          ${wk.tracks.map(t=>trackHTML(wk.n,t)).join('')}
+        </div>
+        ${wk.milestone ? `<div class="box milestone mt-6"><span class="ic">★ MILESTONE</span><span>${esc(wk.milestone)}</span></div>`:''}
+        ${wk.tip ? `<div class="box tip mt-4"><span class="ic">◇ TIP</span><span>${esc(wk.tip)}</span></div>`:''}
+      </div>
+    </section>
+
+    <section>
+      <div class="h-section">Weekly Streak</div>
+      <div class="dots">
+        ${WEEKS.map(w=>{
+          const c = weekCompletion(w.n);
+          const cls = c.done===c.total && c.total>0 ? 'full' : c.done>0 ? 'partial' : '';
+          const cur = w.n===cw ? ' current':'';
+          const seln = w.n===sel ? ' selected':'';
+          return `<div class="dot ${cls}${cur}${seln}" data-jump-week="${w.n}" role="button" tabindex="0" title="Week ${w.n}: ${c.done}/${c.total}">${w.n}</div>`;
+        }).join('')}
+      </div>
+    </section>
+  `;
+}
+
+function trackHTML(weekNum, t){
+  const done = isDone(weekNum, t.key);
+  const color = COLORS[t.key] || COLORS.buffer;
+  return `
+    <div class="track" style="border-left-color:${color};">
+      <div class="check ${done?'checked':''}" role="checkbox" aria-checked="${done}" aria-label="Mark ${esc(t.label)} complete" data-toggle="${weekNum}|${t.key}" tabindex="0"></div>
+      <div class="body">
+        <div class="tlabel" style="color:${color};">${esc(t.label)}</div>
+        <div class="tdesc">${esc(t.desc)}</div>
+      </div>
+    </div>
+  `;
+}
+
+/* ---------- ROADMAP ---------- */
+function renderRoadmap(){
+  return `
+    <section>
+      <div class="label">FULL ROADMAP</div>
+      <h1 class="h-display mt-2">12 Weeks · 6 Phases</h1>
+      <div class="muted mt-3 small">CLICK ANY WEEK TO EXPAND · NOTES SAVE ON BLUR</div>
+    </section>
+    <section>
+      ${WEEKS.map(w=>{
+        const c = weekCompletion(w.n);
+        const open = state.openWeeks.has(w.n);
+        return `
+          <div class="week ${open?'open':''}" data-week="${w.n}">
+            <div class="week-head" data-toggle-week="${w.n}" role="button" tabindex="0" aria-expanded="${open}">
+              <span class="chev">▶</span>
+              <div class="week-num">WEEK ${String(w.n).padStart(2,'0')} · ${w.dates.toUpperCase()}</div>
+              <div class="week-title">${esc(w.title)}</div>
+              <div class="week-meta">
+                ${w.milestone?'<span class="tag" style="color:#10B981; border-color:#10B981;">★ MILESTONE</span>':''}
+                <span class="tag">${c.done}/${c.total} DONE</span>
+              </div>
+            </div>
+            <div class="week-body">
+              ${w.tracks.map(t=>trackHTML(w.n,t)).join('')}
+              ${w.milestone ? `<div class="box milestone mt-6"><span class="ic">★ MILESTONE</span><span>${esc(w.milestone)}</span></div>`:''}
+              ${w.tip ? `<div class="box tip mt-4"><span class="ic">◇ TIP</span><span>${esc(w.tip)}</span></div>`:''}
+              <div class="mt-6 label">Weekly Notes</div>
+              <textarea class="notes" data-notes="${w.n}" placeholder="Reflections, blockers, links…" aria-label="Notes for week ${w.n}">${esc(state.notes['week'+w.n]||'')}</textarea>
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </section>
+  `;
+}
+
+/* ---------- LEETCODE ---------- */
+function renderLeetcode(){
+  const total = state.leet.length;
+  const byDiff = {Easy:0,Medium:0,Hard:0};
+  state.leet.forEach(p=>{ if(byDiff[p.difficulty]!==undefined) byDiff[p.difficulty]++; });
+  const cw = currentWeek();
+  const thisWeek = state.leet.filter(p=>+p.week===cw).length;
+
+  const sorted = [...state.leet].sort((a,b)=>{
+    const {by,dir} = state.leetSort;
+    const A=a[by]||'', B=b[by]||'';
+    if(A<B) return dir==='asc'?-1:1;
+    if(A>B) return dir==='asc'?1:-1;
+    return 0;
+  });
+
+  return `
+    <section>
+      <div class="label">DSA TRAINING</div>
+      <h1 class="h-display mt-2">LeetCode Log</h1>
+    </section>
+
+    <section>
+      <div class="h-section">DSA Progression — Reference</div>
+      <div style="border:1px solid var(--line);">
+        <table>
+          <thead><tr><th>Wk</th><th>Topic</th><th>Difficulty</th><th>Target</th><th>Key Problems</th></tr></thead>
+          <tbody>
+            ${DSA_TABLE.map(r=>`<tr>
+              <td>W${r.wk}</td>
+              <td>${esc(r.topic)}</td>
+              <td><span class="d-${r.diff.split('–')[0].replace('Med','Medium')}">${esc(r.diff)}</span></td>
+              <td>${esc(r.target)}</td>
+              <td class="muted">${esc(r.key)}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <div class="h-section">My Solved Problems</div>
+      <div class="grid-4">
+        <div class="stat"><div class="label">Total Solved</div><div class="num">${total}</div></div>
+        <div class="stat"><div class="label">Easy</div><div class="num d-Easy">${byDiff.Easy}</div></div>
+        <div class="stat"><div class="label">Medium / Hard</div><div class="num"><span class="d-Medium">${byDiff.Medium}</span> <span class="dim">/</span> <span class="d-Hard">${byDiff.Hard}</span></div></div>
+        <div class="stat"><div class="label">This Week (W${cw})</div><div class="num">${thisWeek}</div></div>
+      </div>
+
+      <div class="h-section mt-6" style="margin-top:48px;">Progress By Topic</div>
+      <div class="topics">
+        ${TOPICS.map(tp=>{
+          const solved = state.leet.filter(p=>p.topic===tp).length;
+          const tgt = TOPIC_TARGETS[tp]||12;
+          const pct = Math.min(100, Math.round(solved/tgt*100));
+          return `<div class="topic">
+            <div class="tname">${esc(tp)}</div>
+            <div class="tnum">${solved} <span class="dim" style="font-size:11px;">/ ${tgt}</span></div>
+            <div class="bar"><div style="width:${pct}%; background:${COLORS.leetcode};"></div></div>
+          </div>`;
+        }).join('')}
+      </div>
+
+      <div class="h-section mt-6" style="margin-top:48px;">Add Problem</div>
+      <form class="form" id="leetForm" autocomplete="off">
+        <input class="full" name="name" placeholder="PROBLEM NAME" required aria-label="Problem name" style="grid-column:span 3;">
+        <select name="difficulty" required aria-label="Difficulty">
+          <option value="">DIFFICULTY</option><option>Easy</option><option>Medium</option><option>Hard</option>
+        </select>
+        <select name="topic" required aria-label="Topic">
+          <option value="">TOPIC</option>
+          ${TOPICS.map(t=>`<option>${esc(t)}</option>`).join('')}
+        </select>
+        <select name="week" required aria-label="Week">
+          <option value="">WEEK</option>
+          ${WEEKS.map(w=>`<option value="${w.n}" ${w.n===cw?'selected':''}>W${w.n}</option>`).join('')}
+        </select>
+        <input class="full" name="notes" placeholder="NOTES (OPTIONAL)" aria-label="Notes" style="grid-column:span 5;">
+        <input name="dateSolved" type="date" value="${todayISO()}" aria-label="Date solved">
+        <div class="full" style="display:flex; justify-content:flex-end;"><button class="btn" type="submit">LOG PROBLEM</button></div>
+      </form>
+
+      <div class="h-section mt-6" style="margin-top:48px;">Solved Log</div>
+      <div style="border:1px solid var(--line);">
+        <table>
+          <thead><tr>
+            <th class="sortable" data-sort="dateSolved">Date ${sortArrow('dateSolved')}</th>
+            <th>Problem</th>
+            <th class="sortable" data-sort="difficulty">Difficulty ${sortArrow('difficulty')}</th>
+            <th class="sortable" data-sort="topic">Topic ${sortArrow('topic')}</th>
+            <th>Wk</th>
+            <th>Notes</th>
+            <th></th>
+          </tr></thead>
+          <tbody>
+            ${sorted.length===0?`<tr><td colspan="7" class="muted" style="text-align:center; padding:30px;">NO PROBLEMS LOGGED YET</td></tr>`:
+            sorted.map(p=>`<tr>
+              <td class="muted">${esc(fmtDate(p.dateSolved))}</td>
+              <td>${esc(p.name)}</td>
+              <td><span class="d-${p.difficulty}">${esc(p.difficulty)}</span></td>
+              <td class="muted">${esc(p.topic)}</td>
+              <td>W${esc(p.week)}</td>
+              <td class="muted">${esc(p.notes||'')}</td>
+              <td><span class="btn ghost" data-leet-del="${p.id}" style="padding:4px 8px; cursor:pointer;">DEL</span></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  `;
+}
+function sortArrow(by){ return state.leetSort.by===by ? (state.leetSort.dir==='asc'?'▲':'▼') : '';}
+
+/* ---------- JOBS ---------- */
+function renderJobs(){
+  const total = state.jobs.length;
+  const applied = state.jobs.filter(j=>['Applied','Followed Up','Interview','Offer / Rejected'].includes(j.status)).length;
+  const interviews = state.jobs.filter(j=>j.status==='Interview' || j.status==='Offer / Rejected').length;
+  const responseRate = applied? Math.round(interviews/applied*100): 0;
+
+  return `
+    <section>
+      <div class="between">
+        <div>
+          <div class="label">PIPELINE</div>
+          <h1 class="h-display mt-2">Job Tracker</h1>
+        </div>
+        <button class="btn" id="addJob">+ ADD APPLICATION</button>
+      </div>
+    </section>
+
+    <section>
+      <div class="grid-4">
+        <div class="stat"><div class="label">Total</div><div class="num">${total}</div></div>
+        <div class="stat"><div class="label">Applied</div><div class="num">${applied}</div></div>
+        <div class="stat"><div class="label">Interviews</div><div class="num">${interviews}</div></div>
+        <div class="stat"><div class="label">Response Rate</div><div class="num">${responseRate}<span class="dim" style="font-size:18px;">%</span></div></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="h-section">Pipeline</div>
+      <div class="kanban">
+        ${JOB_STATUSES.map(st=>{
+          const cards = state.jobs.filter(j=>j.status===st);
+          return `<div class="col">
+            <div class="col-head"><span class="label">${st}</span><span class="tag">${cards.length}</span></div>
+            <div class="col-body" data-drop="${st}">
+              ${cards.map(j=>jobCardHTML(j)).join('')}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </section>
+  `;
+}
+
+function jobCardHTML(j){
+  const color = PRIORITY_COLORS[j.priority||'Medium'];
+  return `<div class="jcard" draggable="true" data-job="${j.id}">
+    <span class="jdot" style="background:${color};" title="${esc(j.priority||'Medium')} priority"></span>
+    <div class="jcompany">${esc(j.company)}</div>
+    <div class="jrole">${esc(j.role)}</div>
+    <div class="jmeta">
+      ${j.dateApplied?`<span>${esc(fmtDate(j.dateApplied))}</span>`:''}
+      ${j.source?`<span>· ${esc(j.source)}</span>`:''}
+      ${j.contact?`<span>· ${esc(j.contact)}</span>`:''}
+    </div>
+    ${j.notes?`<div class="muted small mt-2">${esc(j.notes)}</div>`:''}
+    <select data-job-status="${j.id}" aria-label="Change status">
+      ${JOB_STATUSES.map(s=>`<option ${s===j.status?'selected':''}>${s}</option>`).join('')}
+    </select>
+    <span class="jdel" data-job-del="${j.id}">DELETE</span>
+  </div>`;
+}
+
+/* =========================================================
+   MODAL
+   ========================================================= */
+function openJobModal(){
+  const m = document.getElementById('modal');
+  m.innerHTML = `
+    <div class="label">NEW APPLICATION</div>
+    <h2 class="h-week mt-2" style="margin-bottom:18px;">Add Job</h2>
+    <form id="jobForm" class="form" style="grid-template-columns:repeat(2,1fr); border:none; padding:0;">
+      <input name="company" placeholder="COMPANY" required aria-label="Company" class="full">
+      <input name="role" placeholder="ROLE TITLE" required aria-label="Role" class="full">
+      <input name="dateApplied" type="date" value="${todayISO()}" aria-label="Date applied">
+      <select name="source" aria-label="Source">
+        <option value="">SOURCE</option>
+        <option>LinkedIn</option><option>Referral</option><option>Company Site</option><option>Other</option>
+      </select>
+      <input name="contact" placeholder="CONTACT (OPTIONAL)" aria-label="Contact">
+      <select name="priority" aria-label="Priority">
+        <option value="Medium">MEDIUM PRIORITY</option>
+        <option value="High">HIGH PRIORITY</option>
+        <option value="Low">LOW PRIORITY</option>
+      </select>
+      <select name="status" class="full" aria-label="Status">
+        ${JOB_STATUSES.map(s=>`<option ${s==='To Apply'?'selected':''}>${s}</option>`).join('')}
+      </select>
+      <textarea name="notes" placeholder="NOTES (OPTIONAL)" class="full" aria-label="Notes" rows="3"></textarea>
+      <div class="full" style="display:flex; gap:10px; justify-content:flex-end; margin-top:8px;">
+        <button type="button" class="btn ghost" id="cancelJob">CANCEL</button>
+        <button type="submit" class="btn">ADD</button>
+      </div>
+    </form>
+  `;
+  document.getElementById('modalBack').classList.add('open');
+  document.getElementById('cancelJob').onclick = closeModal;
+  document.getElementById('jobForm').onsubmit = (e)=>{
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const job = Object.fromEntries(fd.entries());
+    job.id = uid();
+    state.jobs.push(job);
+    saveJSON(KEY.jobs, state.jobs);
+    closeModal();
+    render();
+  };
+}
+function closeModal(){ document.getElementById('modalBack').classList.remove('open'); }
+
+/* =========================================================
+   EVENT WIRING
+   ========================================================= */
+document.getElementById('tabs').addEventListener('click', e=>{
+  const t = e.target.closest('.tab');
+  if(!t) return;
+  state.tab = t.dataset.tab;
+  render();
+});
+document.getElementById('modalBack').addEventListener('click', e=>{
+  if(e.target.id==='modalBack') closeModal();
+});
+
+function bindAfterRender(){
+  // Track checkboxes
+  document.querySelectorAll('[data-toggle]').forEach(el=>{
+    const handler = ()=>{
+      const [w,k] = el.dataset.toggle.split('|');
+      setDone(+w,k,!isDone(+w,k));
+      render();
+    };
+    el.addEventListener('click', handler);
+    el.addEventListener('keydown', e=>{ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); handler(); }});
+  });
+  // Accordion
+  document.querySelectorAll('[data-toggle-week]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const n = +el.dataset.toggleWeek;
+      state.openWeeks.has(n) ? state.openWeeks.delete(n) : state.openWeeks.add(n);
+      render();
+    });
+  });
+  // Dashboard week nav
+  document.querySelectorAll('[data-week-nav]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const cw = currentWeek();
+      const sel = state.dashWeek ?? cw;
+      const action = el.dataset.weekNav;
+      if(action==='prev') state.dashWeek = Math.max(1, sel-1);
+      else if(action==='next') state.dashWeek = Math.min(12, sel+1);
+      else if(action==='today') state.dashWeek = null;
+      render();
+    });
+  });
+  // Jump to week from streak dots
+  document.querySelectorAll('[data-jump-week]').forEach(el=>{
+    const jump = ()=>{
+      const n = +el.dataset.jumpWeek;
+      state.dashWeek = (n === currentWeek()) ? null : n;
+      render();
+    };
+    el.addEventListener('click', jump);
+    el.addEventListener('keydown', e=>{ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); jump(); }});
+  });
+  // Notes
+  document.querySelectorAll('[data-notes]').forEach(el=>{
+    el.addEventListener('blur', ()=>{
+      state.notes['week'+el.dataset.notes] = el.value;
+      saveJSON(KEY.notes, state.notes);
+    });
+  });
+  // Leet form
+  const lf = document.getElementById('leetForm');
+  if(lf) lf.onsubmit = (e)=>{
+    e.preventDefault();
+    const fd = Object.fromEntries(new FormData(e.target).entries());
+    fd.id = uid();
+    state.leet.push(fd);
+    saveJSON(KEY.leet, state.leet);
+    render();
+  };
+  document.querySelectorAll('[data-leet-del]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      state.leet = state.leet.filter(p=>p.id!==el.dataset.leetDel);
+      saveJSON(KEY.leet, state.leet);
+      render();
+    });
+  });
+  document.querySelectorAll('th.sortable').forEach(th=>{
+    th.addEventListener('click', ()=>{
+      const by = th.dataset.sort;
+      if(state.leetSort.by===by) state.leetSort.dir = state.leetSort.dir==='asc'?'desc':'asc';
+      else { state.leetSort.by=by; state.leetSort.dir='desc'; }
+      render();
+    });
+  });
+
+  // Jobs
+  const aj = document.getElementById('addJob');
+  if(aj) aj.onclick = openJobModal;
+  document.querySelectorAll('[data-job-status]').forEach(sel=>{
+    sel.addEventListener('change', ()=>{
+      const id = sel.dataset.jobStatus;
+      const j = state.jobs.find(x=>x.id===id);
+      if(j){ j.status = sel.value; saveJSON(KEY.jobs, state.jobs); render(); }
+    });
+  });
+  document.querySelectorAll('[data-job-del]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      state.jobs = state.jobs.filter(j=>j.id!==el.dataset.jobDel);
+      saveJSON(KEY.jobs, state.jobs);
+      render();
+    });
+  });
+  // Drag and drop
+  let dragId = null;
+  document.querySelectorAll('[data-job]').forEach(el=>{
+    el.addEventListener('dragstart', e=>{ dragId = el.dataset.job; e.dataTransfer.effectAllowed='move'; });
+  });
+  document.querySelectorAll('[data-drop]').forEach(col=>{
+    col.addEventListener('dragover', e=>{ e.preventDefault(); col.classList.add('over'); });
+    col.addEventListener('dragleave', ()=>col.classList.remove('over'));
+    col.addEventListener('drop', e=>{
+      e.preventDefault(); col.classList.remove('over');
+      if(!dragId) return;
+      const j = state.jobs.find(x=>x.id===dragId);
+      if(j){ j.status = col.dataset.drop; saveJSON(KEY.jobs, state.jobs); render(); }
+      dragId = null;
+    });
+  });
+}
+
+render();
+</script>
+</body>
+</html>
